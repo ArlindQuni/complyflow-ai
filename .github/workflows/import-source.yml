@@ -18,6 +18,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Sync latest main
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git reset --hard origin/main
+
       - name: Download and verify source archive
         run: |
           set -euo pipefail
@@ -45,5 +51,6 @@ jobs:
             echo "No source changes to commit."
           else
             git commit -m "Import ComplyFlow AI source"
-            git push
+            git pull --rebase origin main
+            git push origin main
           fi
