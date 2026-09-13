@@ -1,0 +1,48 @@
+name: Import ComplyFlow source
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/import-source.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download and verify source archive
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://id-preview--c48d1a59-6dba-4019-86d1-838357f81ae6.lovable.app/complyflow-source.zip" \
+            --output /tmp/complyflow-source.zip
+          unzip -t /tmp/complyflow-source.zip
+
+      - name: Import source files
+        run: |
+          set -euo pipefail
+          unzip -o /tmp/complyflow-source.zip -d /tmp/complyflow-import
+          cp -a /tmp/complyflow-import/. .
+          rm -f public/complyflow-source.zip
+          rm -f docs/_export_root.json docs/_export_core.json docs/_export_ui.json docs/_source_zip.b64
+
+      - name: Commit imported source
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No source changes to commit."
+          else
+            git commit -m "Import ComplyFlow AI source"
+            git push
+          fi
