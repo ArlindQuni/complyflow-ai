@@ -1,0 +1,53 @@
+name: Import ComplyFlow source
+
+on:
+  push:
+    paths:
+      - '.github/workflows/import-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download verified public source archive
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 5 --retry-delay 3 \
+            https://complyflow-copilot.lovable.app/complyflow-source.zip \
+            -o /tmp/complyflow-source.zip
+          test "$(stat -c%s /tmp/complyflow-source.zip)" -gt 100000
+          unzip -t /tmp/complyflow-source.zip
+
+      - name: Import source tree
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/complyflow-src
+          mkdir -p /tmp/complyflow-src
+          unzip -q /tmp/complyflow-source.zip -d /tmp/complyflow-src
+          cp -a /tmp/complyflow-src/. .
+          rm -rf .source
+          rm -f public/complyflow-source.zip
+          rm -f docs/_export_*.json docs/_gh_batch_*.json docs/_source_zip.b64 docs/_source_chunk_*.txt
+          rm -f .github/workflows/import-source.yml
+
+      - name: Commit imported source
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Import complete ComplyFlow AI source"
+            git push
+          fi
