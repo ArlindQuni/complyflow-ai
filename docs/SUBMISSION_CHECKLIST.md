@@ -11,20 +11,18 @@ completes.
 - [x] **Submission copy drafted in repo** — `docs/DEVPOST_SUBMISSION.md`
 - [x] **Demo video script drafted** — `docs/DEMO_VIDEO_SCRIPT.md`
 - [x] **Pitch deck content drafted** — `docs/PITCH_DECK_CONTENT.md`
-- [x] **Public GitHub repository created** — `ArlindQuni/complyflow-ai`
-- [x] **Application source mirrored to GitHub** — `src/**`, build/config files, docs and `bun.lock` are present on `main`
-- [x] **Repository visibility verified public**
-- [x] **Production build verified in the source project after submission-pack changes**
 
 ## 1. Public GitHub repository
 
-- [x] Confirm `README.md`, `docs/`, `.env.example`, `src/**` and `bun.lock` are present
-- [ ] Optionally verify a fresh external clone with `npm install && npm run build` (the current execution environment cannot reach github.com for a fresh clone)
-- [ ] Paste the public repo URL into the Devpost repository/source field
+- [ ] Connect GitHub from Lovable project settings and push the repo
+- [ ] Set visibility to public
+- [ ] Confirm `README.md`, `docs/` and `.env.example` are present and no secrets are committed
+- [ ] Check out a fresh clone and run `npm install && npm run build` to confirm it builds standalone
+- [ ] Paste the repo URL into the Devpost "Try it out" / repository field
 
 ## 2. Devpost fields
 
-- [ ] Project name and tagline
+- [ ] Project name and tagline from `docs/DEVPOST_SUBMISSION.md`
 - [ ] Full description sections (Inspiration, What it does, How we built it, Challenges,
       Accomplishments, What we learned, What's next)
 - [ ] Built-with tags: TypeScript, React, TanStack Start, Vite, Tailwind CSS, shadcn/ui, Zod, Gemini
@@ -70,6 +68,6 @@ completes.
 
 ## 7. Final submit
 
-- [ ] Submit on Devpost **before the deadline**
+- [ ] Submit on Devpost **before the deadline** (submit early; edits are usually allowed afterwards)
 - [ ] Screenshot the submission confirmation
 - [ ] Re-open the public Devpost page logged out and verify every link works
