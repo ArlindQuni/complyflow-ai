@@ -22,7 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --location --retry 3 --retry-delay 2 \
-            "https://id-preview--c48d1a59-6dba-4019-86d1-838357f81ae6.lovable.app/complyflow-source.zip" \
+            "https://complyflow-copilot.lovable.app/complyflow-source.zip" \
             --output /tmp/complyflow-source.zip
           unzip -t /tmp/complyflow-source.zip
 
@@ -32,7 +32,8 @@ jobs:
           unzip -o /tmp/complyflow-source.zip -d /tmp/complyflow-import
           cp -a /tmp/complyflow-import/. .
           rm -f public/complyflow-source.zip
-          rm -f docs/_export_root.json docs/_export_core.json docs/_export_ui.json docs/_source_zip.b64
+          rm -f docs/_export_root.json docs/_export_core.json docs/_export_ui.json docs/_export_lib.json docs/_export_routes.json docs/_export_app.json docs/_export_src_lib.json docs/_export_src_routes.json docs/_export_src_components.json docs/_export_src_hooks.json docs/_export_src_ui_a.json docs/_export_src_ui_b.json docs/_source_zip.b64
+          rm -f docs/_gh_batch_*.json
 
       - name: Commit imported source
         run: |
