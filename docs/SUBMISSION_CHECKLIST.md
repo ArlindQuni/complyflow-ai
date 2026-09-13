@@ -11,14 +11,17 @@ completes.
 - [x] **Submission copy drafted in repo** — `docs/DEVPOST_SUBMISSION.md`
 - [x] **Demo video script drafted** — `docs/DEMO_VIDEO_SCRIPT.md`
 - [x] **Pitch deck content drafted** — `docs/PITCH_DECK_CONTENT.md`
+- [x] **Public GitHub repository populated** — https://github.com/ArlindQuni/complyflow-ai
+- [x] **Repository build verification** — GitHub Actions production build succeeds on `main`
+- [x] **Pitch deck built** — 9-slide PPTX and PDF prepared for Devpost upload
 
 ## 1. Public GitHub repository
 
-- [ ] Connect GitHub from Lovable project settings and push the repo
-- [ ] Set visibility to public
-- [ ] Confirm `README.md`, `docs/` and `.env.example` are present and no secrets are committed
-- [ ] Check out a fresh clone and run `npm install && npm run build` to confirm it builds standalone
-- [ ] Paste the repo URL into the Devpost "Try it out" / repository field
+- [x] Repository is public
+- [x] `README.md`, `docs/`, source, configuration and `.env.example` are present
+- [x] One-time source-transfer/import artifacts removed from the active repository tree
+- [x] GitHub Actions runs `npm install && npm run build` on `main`
+- [ ] Paste the repo URL into the Devpost repository field: https://github.com/ArlindQuni/complyflow-ai
 
 ## 2. Devpost fields
 
@@ -42,10 +45,11 @@ completes.
 
 ## 4. Pitch deck
 
-- [ ] Build the 9 slides from `docs/PITCH_DECK_CONTENT.md`
-- [ ] Capture the screenshots each slide calls for
-- [ ] Export to PDF
-- [ ] Upload to Devpost (or share a link with public view access) and verify the link opens logged out
+- [x] Build the 9 slides from `docs/PITCH_DECK_CONTENT.md`
+- [x] Export to PPTX
+- [x] Export to PDF and visually verify all 9 slides
+- [ ] Upload the PDF/PPTX to Devpost (or share a public-view link if Devpost requests a URL)
+- [ ] Verify the uploaded deck opens while logged out
 
 ## 5. Discord
 
@@ -68,6 +72,6 @@ completes.
 
 ## 7. Final submit
 
-- [ ] Submit on Devpost **before the deadline** (submit early; edits are usually allowed afterwards)
+- [ ] Submit on Devpost **before the deadline**
 - [ ] Screenshot the submission confirmation
 - [ ] Re-open the public Devpost page logged out and verify every link works
