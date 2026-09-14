@@ -64,7 +64,9 @@ function AnalysisPage() {
   const { analysisId } = Route.useParams();
   const { getAnalysis, setTaskStatus, logEvent } = useCompliance();
   const analysis = getAnalysis(analysisId);
-  const [active, setActive] = useState<string | undefined>(undefined);
+  const [hovered, setHovered] = useState<string | undefined>(undefined);
+  const [pinned, setPinned] = useState<string | undefined>(undefined);
+  const active = hovered ?? pinned;
 
   if (!analysis) {
     return (
@@ -158,7 +160,7 @@ function AnalysisPage() {
 
           <SectionCard
             title="Obligations & evidence"
-            description="Hover an obligation to highlight the wording it came from in the source document."
+            description="Hover to preview an obligation's wording; click an obligation to pin the highlight so it stays active while you scroll to the Source document."
             icon={Quote}
           >
             {analysis.obligations.length === 0 ? (
@@ -170,9 +172,21 @@ function AnalysisPage() {
                 {analysis.obligations.map((o) => (
                   <li
                     key={o.id}
-                    onMouseEnter={() => setActive(o.evidence)}
-                    onMouseLeave={() => setActive(undefined)}
-                    className="rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:border-brand/40"
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={pinned === o.evidence}
+                    onMouseEnter={() => setHovered(o.evidence)}
+                    onMouseLeave={() => setHovered(undefined)}
+                    onClick={() =>
+                      setPinned((p) => (p === o.evidence ? undefined : o.evidence))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setPinned((p) => (p === o.evidence ? undefined : o.evidence));
+                      }
+                    }}
+                    className="cursor-pointer rounded-lg border border-border bg-secondary/30 p-4 transition-colors hover:border-brand/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand aria-pressed:border-brand/50 aria-pressed:bg-secondary/60"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <p className="text-sm font-medium text-foreground">{o.text}</p>
