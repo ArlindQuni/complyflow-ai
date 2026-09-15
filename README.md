@@ -1,116 +1,100 @@
 # ComplyFlow AI
 
-**Live app:** https://complyflow-copilot.lovable.app ·
-**Three-minute judge demo:** https://complyflow-copilot.lovable.app/judge-demo
+**Live prototype:** https://complyflow-copilot.lovable.app  
+**Judge demo:** https://complyflow-copilot.lovable.app/judge-demo
 
-A compliance operations copilot. Paste a regulatory notice, card-scheme bulletin, contract change or
-internal policy update, and ComplyFlow turns it into an actionable workflow: a plain-English summary,
-dated items, obligations with verbatim evidence from the source text, a risk score with rationale,
-suggested owners, an implementation plan, a status-tracked checklist, a draft acknowledgement and an
-audit-style activity timeline.
+> Turn incoming regulatory change into evidence-backed execution.
 
-**ComplyFlow AI is not a legal-advice product.** It describes operational obligations found in a
-document and is intended for human review.
+ComplyFlow AI is a regulatory change operations copilot. It helps teams move from an incoming regulatory notice, public guidance, vendor change or internal policy update to structured obligations, source evidence, human review, accountable owners, implementation tasks and an audit-style trail.
+
+**ComplyFlow AI is a prototype and is not legal advice.**
+
+## Why it is different
+
+The product deliberately separates mechanically checked evidence from judgement-based drafts. Every extracted obligation that survives the grounding step must be backed by a verbatim excerpt from the submitted source. Unsupported calendar dates are removed. Summaries, risk scores, suggested owners and implementation plans remain drafts for human review.
+
+## Prototype capabilities
+
+- Public HTTP(S) URL import with an imported-content review step before analysis
+- `.txt` / `.md` upload and pasted-text ingestion
+- Hosted structured analysis with Zod validation when the hosted model path is configured
+- Deterministic browser-based offline engine
+- Organisation relevance context
+- Evidence-backed obligations and source highlighting
+- Human-review boundary for risk, owners and plans
+- Checklist status and audit-style activity tracking
+- JSON / CSV handoff
 
 ## Quick start
 
-Requires Node.js 20+ (npm, pnpm or bun all work; the repo ships a `bun.lock`).
+Requires Node.js 20+.
 
 ```sh
-npm install        # or: bun install
-npm run dev        # dev server on http://localhost:8080
+npm install
+npm run dev
 ```
 
-Production build and local preview:
+Production build:
 
 ```sh
-npm run build      # vite build (TanStack Start / nitro output)
-npm run preview    # serve the production build
+npm run build
+npm run preview
 ```
 
-Other scripts defined in `package.json`: `build:dev`, `lint`, `format`. There is no test script.
+## Analysis and grounding
 
-## Environment
+Hosted analysis is implemented as a server function. A separate grounding layer checks model output against the submitted text before it is stored:
 
-| Variable | Where it is read | Required |
-| --- | --- | --- |
-| `LOVABLE_API_KEY` | server only, inside the `analyzeDocument` handler in `src/lib/analyze.functions.ts` | no |
+- an obligation is retained only when its evidence is a literal source substring, with case/whitespace normalization;
+- calendar dates are retained only when supported by accepted exact source forms;
+- unsupported obligations and dates are removed and counted;
+- judgement-based outputs are not presented as mechanically grounded facts.
 
-Copy `.env.example` to `.env` to set it. It is deliberately **not** prefixed with `VITE_`, so it never
-reaches the browser bundle, and it is only read inside a server-function handler. No other secrets or
-paid services are used. No key is needed to run or demo the app.
+The deterministic engine in `src/lib/local-engine.ts` is rule-based, not an AI model. It provides a browser-local fallback and is intentionally described as such.
 
-## Two analysis modes (both visible in the UI)
+## Data and prototype boundaries
 
-1. **Hosted AI** — when `LOVABLE_API_KEY` is present, the server function posts the document to
-   `https://ai.gateway.lovable.dev/v1/chat/completions` with model `google/gemini-3.8-flash` and
-   `response_format: { type: "json_object" }`. The response is validated with Zod before it reaches
-   the UI.
-2. **Deterministic engine** — if no key is configured, or the call fails or times out (the gateway
-   call is bounded at 120 seconds), `src/lib/local-engine.ts` produces the same output shape entirely
-   in the browser. This is a fallback, not a guarantee: badly malformed input, a browser error or a
-   storage failure can still produce an error state, which the UI shows explicitly.
+- No authentication or multi-user backend in the current prototype.
+- No shared production database; demo workspace state is browser-local.
+- Running hosted analysis may send submitted document text to the configured hosted AI gateway.
+- Only **Run offline engine** guarantees that no analysis request leaves the browser.
+- Jira, ServiceNow, enterprise document stores, email monitoring, SSO/RBAC, persistent audit storage and customer-controlled deployment are production-roadmap capabilities, not current live integrations.
 
-A configured key proves only that hosted mode is *attempted*; it does not prove a successful model
-response. Check the confidence card on the resulting analysis, which names the actual producer.
+## Production direction
 
-### Source grounding (`src/lib/grounding.ts`)
+The roadmap supports two deployment patterns:
 
-Model output is verified against the submitted text before it is stored, in both modes:
-
-- An obligation is kept only when its evidence is a literal substring of the source (whitespace- and
-  case-insensitive). Anything that cannot be quoted is dropped and counted.
-- A date is kept only when that exact calendar date is written in the source as ISO (`2026-03-31`),
-  `31 March 2026` or `March 31, 2026`. Every other date is removed — including checklist due dates,
-  which are never invented — and the wording describing the timing is preserved as text instead.
-- Suggested internal target dates are never presented as source deadlines.
-- The confidence rationale records how many obligations and dates were removed.
-
-The confidence card on every analysis states which produced it: *Hosted AI model*,
-*Deterministic engine (no external AI call)*, or *Seeded demo record*.
-
-### Deterministic engine limitations (honest list)
-
-- Pattern- and keyword-based: it matches explicit wording, dates and obligation phrasing. Implied or
-  purely relative requirements ("within a reasonable period") are often missed.
-- Risk scoring is rule-weighted, not learned; it is stable and explainable but coarse.
-- Summaries and the draft response are templated from extracted content, not generated prose.
-- Obligation evidence is a literal substring of the pasted text, so quality depends on the input
-  being clean plain text.
-- It is a triage draft for human review, not an authoritative reading of the document.
-
-## Data, persistence and scope
-
-- **No authentication, no multi-user backend, no database.** The workspace lives in the visitor's
-  browser under the `localStorage` key `complyflow.workspace.v1`.
-- Clearing browser storage, or using another browser or device, resets the workspace to the seeded
-  demo data in `src/lib/seed.ts`. Nothing is shared between visitors.
-- **Privacy, precisely:** clicking **Run analysis** on `/new` uploads the document text to this app's
-  server, which may forward it to the hosted AI gateway — that upload happens even when the result
-  ultimately comes from the offline fallback. Only **Run offline engine** guarantees that no analysis
-  request leaves the browser.
-- All demo documents, issuers and bulletins were written for this showcase. They are illustrative and
-  imply no affiliation with, or endorsement by, any regulator, card scheme or company.
+1. **ComplyFlow Cloud** — managed SaaS for teams that want a managed operating environment.
+2. **ComplyFlow Private** — customer-controlled deployment for regulated enterprises, with enterprise identity, persistent audit storage, customer-approved models and private connectors as roadmap capabilities.
 
 ## Architecture
 
-TanStack Start v1 (React 19, Vite 8, Tailwind v4, shadcn/ui, TypeScript strict). Server logic uses
-`createServerFn`; there are no API routes or edge functions.
+The prototype uses TanStack Start, React 19, Vite, TypeScript, Tailwind and shadcn/ui. Server logic uses `createServerFn`; structured hosted output is schema-validated with Zod. The grounding layer and deterministic offline engine are separate from hosted model execution.
 
+Conceptual workflow:
+
+```text
+Sources
+  -> Organisation relevance
+  -> Structured analysis
+  -> Evidence grounding
+  -> Human review
+  -> Owners / checklist
+  -> Handoff
+  -> Audit trail
 ```
-src/
-  routes/            index, dashboard, new, analyses.$analysisId, tasks, how-it-works, judge-demo
-  lib/analyze.functions.ts   server function -> hosted AI gateway, Zod-validated
-  lib/local-engine.ts        deterministic in-browser analyzer (fallback)
-  lib/store.tsx              React context + localStorage workspace
-  lib/seed.ts                seeded demo analyses and sample documents
-  components/                app shell and compliance UI primitives
-```
 
-Pipeline: ingest → extract → classify → deadline & obligation detection → risk scoring → action plan →
-audit trail. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+## Judge path
 
-## Three-minute judge demo
+For the strongest demo path:
 
-Open `/judge-demo` in the app, or follow [docs/JUDGE_RUN_SHEET.md](docs/JUDGE_RUN_SHEET.md).
-No login and no API key required.
+1. View the Organisation Profile.
+2. Open the Compliance Inbox.
+3. Inspect the DORA hero analysis.
+4. Select an obligation and inspect the matching source evidence.
+5. Review risk, owners and checklist.
+6. Change a checklist status and inspect the audit trail.
+7. Open Review & Handoff and inspect JSON/CSV export.
+8. Visit How It Works for prototype boundaries and the deployment roadmap.
+
+No login or API key is required for the seeded demo.
